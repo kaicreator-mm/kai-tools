@@ -10,7 +10,7 @@
     "node": ">=24 <25"
   },
   "scripts": {
-    "test": "node --experimental-strip-types --test packages/win-ipc/test/admission.test.ts",
+    "test": "node --experimental-strip-types --test packages/win-ipc/test/admission.test.ts packages/windows-child-env/test/env.test.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "probe:windows": "node --experimental-strip-types packages/win-ipc/scripts/windows-probe.ts",
     "verify": "npm run typecheck && npm test"
