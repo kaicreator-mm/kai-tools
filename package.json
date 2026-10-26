@@ -8,10 +8,11 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./env": "./src/env.ts"
+    "./env": "./src/env.ts",
+    "./async": "./src/async.ts"
   },
   "scripts": {
-    "test": "node --experimental-strip-types --test test/env.test.ts",
+    "test": "node --experimental-strip-types --test test/*.test.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "verify": "npm run typecheck && npm test"
   },
