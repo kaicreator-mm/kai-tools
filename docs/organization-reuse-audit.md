@@ -1,6 +1,6 @@
 # Organization-wide reusable-code census (2026-10-27)
 
-Status: `EVIDENCE_REVIEWED`, **no newly approved package** from this census. Work item [#6](https://github.com/kaicreator-mm/kai-tools/issues/6).
+Status: `EVIDENCE_REVIEWED`, **no newly approved utility** from this census. **Current scope updated by #8**: kai-tools contains utility functions/classes only, not subsystem-level packages. Historic WinIPC experiments listed below were subsequently removed. Work item [#6](https://github.com/kaicreator-mm/kai-tools/issues/6).
 
 Scope is a **breadth-first code inventory**, not a claim that every file in 49 repositories was deeply audited. On 2026-10-27 the GitHub connection listed **49 visible repositories** including transient Tally HV mirror repositories, experimental scaffolds, and some README-only repositories. Main-branch recursive trees of the substantial repositories were screened; specific source files below were read directly. For active projects, current version branch refs were checked rather than treating possibly stale `main` as their latest source. All upstream projects remain **unchanged**.
 
@@ -13,7 +13,7 @@ Scope is a **breadth-first code inventory**, not a claim that every file in 49 r
 | Task trace, telemetry and model-cost evidence | [task-meta](https://github.com/kaicreator-mm/task-meta/tree/version/v0.4) `version/v0.4@8686618f2ab383910859846603f48617c5840585` | **USE EXISTING PROJECT**, do not create a competing trace/ledger library |
 | Organization dev worktrees and host tooling | [devkit](https://github.com/kaicreator-mm/devkit) `main@eff3a21740da966a600f34e8ec81f7c03ef64f71`, `tools/task-new.sh` blob `10e9cb41ed83fe623c43ee459655f4660184fa5d` | Keep orchestration scripts at devkit; **do not move into runtime library** |
 | Verification and adversarial hidden probes | [hidden-validation](https://github.com/kaicreator-mm/hidden-validation) `main@2c52182a7a4d05a930d5dcadeb04da20d8259f3f` | Keep hidden fixtures outside consumable runtime; do not leak oracle internals |
-| Existing `@kai-tools/win-ipc` and `@kai-tools/windows-child-env` | [kai-tools version/v0.1.0](https://github.com/kaicreator-mm/kai-tools/tree/version/v0.1.0) | Remain **private/experimental**, not evidence of adoption by a second product |
+| Historical experiments `@kai-tools/win-ipc` and `@kai-tools/windows-child-env` | [kai-tools version/v0.1.0](https://github.com/kaicreator-mm/kai-tools/tree/version/v0.1.0) | **Superseded by #8**: WinIPC removed as an OS transport subsystem; child env functions consolidated in `@kai-tools/utils` |
 
 ## Candidate decisions ranked by *reuse value and compatibility risk*
 
@@ -56,13 +56,13 @@ Real duplicated implementations have **different byte contracts**:
 
 **Decision:** `DEFER` until a second consumer requires a specific **read-only** path inspection or owned-temporary-workspace API. Use Node `fs.mkdtemp`, `fs.realpath`, `lstat` and explicit trusted roots wherever sufficient. An abstraction named `safeDelete` would be unsafe without an independently verified ownership protocol and race model. No migration in the Shun or Formula release path.
 
-### 5. Windows IPC / child spawn — EXISTING EXPERIMENTAL, **PROVE ADOPTION**
+### 5. Windows IPC / child spawn — **SCOPE CORRECTED BY #8**
 
-- `@kai-tools/win-ipc` came from xDownload's Win32 Native Bridge: supported only on verified Win32 host builds; no OS-attested same-logon claim on other platforms, release review pending.
-- `@kai-tools/windows-child-env` came from Shun's `safe-env.ts`: explicit key filtering, **not** a security sandbox. PATH, TEMP, ComSpec values remain parent-controlled; elevated callers must pin and reverify.
+- `@kai-tools/win-ipc` was **removed** in #8: OS transport subsystems do not belong here. Original WinIPC stays in xDownload.
+- `selectChildEnvironment` and `windowsPinnedNodeChildEnv` from Shun's `safe-env.ts` are retained in `@kai-tools/utils` as **functions only**, not a security sandbox. PATH, TEMP, ComSpec values remain parent-controlled; elevated callers must pin and reverify.
 - Formula desktop's Electron `credentialsIpc.ts` is not evidence of a Windows named-pipe host; most cross-project IPC uses existing Electron/Node/native transports as appropriate.
 
-**Decision:** `PREFER_EXISTING_KAI_TOOLS_EXPERIMENTAL_WHEN_FIT`, but **do not force Shun, xDownload or Formula to migrate**. Identify a real second consumer and compare its actual native Windows threat model before declaring a published reusable package.
+**Decision after #8:** `UTILITY_FUNCTIONS_ONLY`, no large OS modules; **do not force Shun, xDownload or Formula to migrate**. Identify a real second consumer and compare its actual native Windows threat model before declaring a published reusable package.
 
 ### 6. Domain-specific work that should remain with current owners — KEEP
 

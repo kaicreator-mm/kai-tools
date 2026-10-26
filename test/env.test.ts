@@ -39,3 +39,8 @@ test('real pinned node child does not receive poisoned interpreter directives', 
   assert.equal(child.status,0,child.stderr || String(child.error));
   assert.deepEqual(JSON.parse(child.stdout),{nodeOptions:null,nodePath:null,psModulePath:null});
 });
+
+test('Windows preset normalizes unconventional Path casing', () => {
+  const result = windowsPinnedNodeChildEnv({ pAtH: 'C:\\Windows\\System32', PATH: 'C:\\Fallback' });
+  assert.deepEqual(result, { Path: 'C:\\Fallback' });
+});

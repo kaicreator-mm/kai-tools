@@ -1,5 +1,5 @@
 /**
- * A narrow, *non-authorizing* environment projection.
+ * Small, independently usable environment helper functions.
  * Ported from shun-assistant executor-windows/src/safe-env.ts (source pinned).
  *
  * Explicit env selection is not an OS sandbox. Values may still be attacker
@@ -89,10 +89,10 @@ export function windowsPinnedNodeChildEnv(
   });
   // Windows names are case-insensitive; Node on Windows can receive multiple
   // spellings. Preserve source precedence: Path over PATH.
-  if (env.Path !== undefined || env.PATH !== undefined) {
-    const selected = env.Path ?? env.PATH;
-    delete env.Path;
-    delete env.PATH;
+  const pathKeys = Object.keys(env).filter((key) => key.toLowerCase() === 'path');
+  if (pathKeys.length > 0) {
+    const selected = env.Path ?? env.PATH ?? env[pathKeys[0]!];
+    for (const key of pathKeys) delete env[key];
     if (selected !== undefined) env.Path = selected;
   }
   return env;
