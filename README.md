@@ -4,6 +4,8 @@ Small, optional, independent packages used across kaicreator-mm repositories. De
 
 ## Workspace
 
+See [Organization reuse census](docs/organization-reuse-audit.md) for a source-pinned project-by-project decision table and adoption rules.
+
 - [windows-child-env](packages/windows-child-env/README.md): an experimental, dependency-free env projection derived from Shun Assistant; not a security sandbox.
 - [win-ipc](packages/win-ipc/README.md): **experimental** Windows-only native pipe/OS-token building blocks and same-user/logon-session admission. First implementation is source-portable and has a strict fail-closed contract; package is **not release-qualified** until Windows validation/review.
 
