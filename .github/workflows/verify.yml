@@ -1,0 +1,23 @@
+name: kai-tools verification
+on:
+  push:
+    branches: [version/**]
+  pull_request:
+jobs:
+  verify:
+    name: Node 24 (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.21.0'
+      - run: npm install --no-audit --no-fund
+      - run: npm run verify
+      - name: Win32 token + DACL + native same-session probe
+        if: runner.os == 'Windows'
+        run: npm run probe:windows
