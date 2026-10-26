@@ -1,22 +1,26 @@
 # kai-tools
 
-Small, optional, independent packages used across kaicreator-mm repositories. Development follows ADS v4.18 and the Web-first approach; this repository does **not** change frozen xDownload v0.1 gates or require migration.
+**A small utility-function and utility-class library. Not a framework or a collection of functional subsystems.**
 
-## Workspace
+Only independently reusable helpers and their necessary types belong here. No IPC services, HTTP clients, authorization engines, workflow runtimes or business modules.
 
-See [Organization reuse census](docs/organization-reuse-audit.md) for a source-pinned project-by-project decision table and adoption rules.
+The v0.1 private library is `@kai-tools/utils`:
 
-- [windows-child-env](packages/windows-child-env/README.md): an experimental, dependency-free env projection derived from Shun Assistant; not a security sandbox.
-- [win-ipc](packages/win-ipc/README.md): **experimental** Windows-only native pipe/OS-token building blocks and same-user/logon-session admission. First implementation is source-portable and has a strict fail-closed contract; package is **not release-qualified** until Windows validation/review.
+- `selectChildEnvironment(source, allowKeys, options)`: explicit environment selection, without launching any process.
+- `windowsPinnedNodeChildEnv(source?)`: Windows Node/PowerShell key preset. **Not** a security sandbox or process authorization.
 
-The high-level xDownload Core Seam frame protocol and HLS transport have **not** been copied. Restricted HTTP and address policies are deferred pending distinct consumers and an alternatives comparison.
+```ts
+import { selectChildEnvironment } from '@kai-tools/utils';
+const env = selectChildEnvironment(process.env, ['HOME', 'LANG']);
+```
+
+Node 24 verification:
 
 ```sh
 npm install
-npm test
-npm run typecheck
-# On Windows + Node 24 only: real token/DACL/pipe smoke
-npm run probe:windows
+npm run verify
 ```
 
-No public npm publishing is configured. Original xDownload remains its own authority and version. See [intake #1](https://github.com/kaicreator-mm/kai-tools/issues/1), [source #101](https://github.com/kaicreator-mm/xDownload/issues/101), [ADS feedback #1337](https://github.com/kaicreator-mm/ai-development-standard/issues/1337).
+See [scope](docs/SCOPE.md), [source intake](docs/INTAKE.md), and [organization reuse audit](docs/organization-reuse-audit.md).
+
+The original experimental WinIPC native bridge was **removed from kai-tools** because it is a transport subsystem, not a small utility. xDownload still owns the original implementation; Git history retains the previous experiment. No source-product migration, new dependencies, or public npm publication.

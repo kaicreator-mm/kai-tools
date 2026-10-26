@@ -1,28 +1,19 @@
-# v0.1 Product/L2/Task fast-path decision (ADS v4.18; issue #1)
+# v0.1 intake: current scope and source history
 
-Source fixed: xDownload `version/v0.1.0` commit `4f4082ca4f43b5138f85b6c373a22c95938ae580`. No changes to xDownload.
+**Current rule:** [utility functions/classes only](SCOPE.md), superseding prior WinIPC-first plans (Issue #8).
 
-## Product (value and real demand)
+## xDownload Issue #1, superseded
 
-Goal: salvage independently reusable Win32 OS-token IPC primitives without imposing them on a normal download tool. xDownload is one real consumer; Shun Assistant (`executor-windows`) is an **unconfirmed possible** second consumer, not evidence of actual integration. Authoritative status: **EXTRACT_AS_EXPERIMENTAL** only, no publish/release until second consumer and OS proof. Do not create hypothetical universal RPC framework.
+The prior `@kai-tools/win-ipc` prototype was derived from `xDownload version/v0.1.0@4f4082ca4f43b5138f85b6c373a22c95938ae580`, `packages/core-seam/src/win-ipc.ts` blob `459da3ec6d5753c406a4ab57dca0207fa46395bb`. It required Koffi/native Win32, handle lifetimes, token impersonation and protected named-pipe creation. It is **not** a generic utility function. The prototype is removed; retained in prior kai-tools Git commits for reference only. Original xDownload unchanged. WinIPC-native CI checks no longer belong in kai-tools.
 
-## L2 smallest architecture and alternatives
+The Restricted HTTP transport is likewise a complete network subsystem and remains in xDownload. A narrow parser/classifier may be considered separately only if useful and semantics are explicit.
 
-`packages/win-ipc`: lazy `koffi` native Win32 handle/identity bridge + one small pure admission function. The bridge already existed in xDownload, avoiding a fresh FFI project. No `@xdownload/*` import. Node `net` supports named-pipe streams but does not by itself expose an actual impersonated connecting client token / explicit DACL creation. Existing well-supported Koffi is preferable to authoring a new native addon. A future consumer could wrap it; this package deliberately avoids the source's Node-internal `process.binding('pipe_wrap')` transport.
+## Shun Assistant Issue #4, retained functions
 
-`@kai-tools/restricted-http`: **DEFER**. The existing S3 reader bakes in `/media/*`, direct video mime, no signed query, no CDN path, no IPv6/proxy, and special DNS behavior. Standard Node/Undici HTTPS first; only extract a pinned transport if a separate unattended SSRF-sensitive consumer demonstrates a gap. Leave existing source in xDownload.
+Shun source: `version/v0.2.0@a0a57db8ab7a9345787e444fdce37663feaf7a78`, `packages/executor-windows/src/safe-env.ts` blob `f3ef1929973d6b2639ebd1c7091ebcd909e094b9`.
 
-`@kai-tools/net-address-policy`: **DEFER** unless at least two consumers agree on address classification semantics; avoid extracting the existing IPv4-only CIDR list into a universal security promise.
+Retain independent `selectChildEnvironment` and `windowsPinnedNodeChildEnv`, doing no process launch, IPC or privilege operations. Functions consolidated into `src/env.ts`. Inherited values like PATH remain untrusted; source project unchanged.
 
-Not candidates: HLS parsing/media admission, Core Journals/replay, download workflow, browser confirmations.
+## Organization Issue #6
 
-## Minimal Task DAG (issue #1; no subissue explosion)
-
-- [x] Audit exact source, alternative library and cross-project candidates
-- [x] Bootstrap minimal monorepo and isolate win-ipc native OS bridge
-- [x] Add fail-closed same-user+LUID pure policy/tests
-- [ ] Windows native host probe (GitHub Actions + optional independent local host)
-- [ ] Exact-SHA independent review / hard P0,P1 check
-- [ ] Confirm a second independent consumer; then productize/qualify package
-
-Native probe ≠ full security proof. Unit mocks ≠ real OS proof. Unverified steps remain NOT_RUN until evidence exists. No xDownload v0.1 release gate, migration issue, or project workflow is modified. Noncritical limitations remain documented rather than endlessly patched.
+The [census](organization-reuse-audit.md) is an evidence register, **not** authorization to extract complete subsystems. Only small tools and helpers qualify.
