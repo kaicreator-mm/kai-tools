@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { spawnSync } from 'node:child_process';
 import { admitSameLogonPipePeer, hasWindowsLogonGroupAttributes, isWindowsIpcPlatform, WindowsIpcBridge } from '../src/index.ts';
 import type { WindowsPeerVerification, WindowsSelfIdentity } from '../src/index.ts';
 
@@ -19,9 +20,14 @@ test('matching native token SID and logon LUID are required',()=>{
 test('unverified/native failure denies, never falls back to claimed PID',()=>{
   assert.deepEqual(admitSameLogonPipePeer(prove({ok:false,reason:'native error'}),1n,own),{ok:false,reason:'TOKEN_UNVERIFIED'});
 });
-test('RevertToSelf failure requires a non-returning process-fatal policy',()=>{
-  const marker=new Error('EXPECTED_FATAL');
-  assert.throws(()=>admitSameLogonPipePeer(prove({ok:false,revertFailed:true,reason:'restore failed'}),1n,own,()=>{throw marker;}),error=>error===marker);
+test('RevertToSelf failure terminates the entire host process with code 70',()=>{
+  const file=new URL('../src/index.ts',import.meta.url).href;
+  const child=spawnSync(process.execPath,['--experimental-strip-types','--input-type=module','-e',
+    'import {admitSameLogonPipePeer} from '+JSON.stringify(file)+';'+
+    'admitSameLogonPipePeer({verifyPipeClient:()=>({ok:false,revertFailed:true,reason:"restore failed"})},1n,{sameUser:()=>true,sameLogonSession:()=>true});'
+  ],{encoding:'utf8',timeout:15_000});
+  assert.equal(child.status,70,child.stderr);
+  assert.match(child.stderr,/kai-tools win-ipc FATAL/u);
 });
 test('Win32 only and fail-closed when native is not loaded',()=>{
   assert.equal(isWindowsIpcPlatform('linux'),false);

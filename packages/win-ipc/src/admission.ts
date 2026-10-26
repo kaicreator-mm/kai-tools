@@ -16,8 +16,8 @@ function fatalRevertFailure(reason: string): never {
 /**
  * Verify a connected HANDLE using an impersonated OS token, then gate *both*
  * current-user SID and authentication LUID. A failed RevertToSelf is PROCESS
- * fatal, not a normal access denial; caller-supplied fatal handler exists ONLY
- * for embedding in a host's terminal shutdown policy or test. It MUST never return.
+ * fatal, not a normal access denial; this entrypoint does not allow a caller
+ * to override or downgrade the process-termination behavior.
  *
  * The caller owns the HANDLE and must revoke its session on disconnect, refuse
  * messages before this gate, and never fall back to unverified loopback IPC.
@@ -26,11 +26,10 @@ export function admitSameLogonPipePeer(
   probe: PipePeerProbe,
   pipeHandle: bigint,
   self: WindowsSelfIdentity,
-  onFatal: (reason: string) => never = fatalRevertFailure,
 ): PipeAdmission {
   const verified = probe.verifyPipeClient(pipeHandle);
   if (!verified.ok) {
-    if (verified.revertFailed === true) return onFatal(verified.reason);
+    if (verified.revertFailed === true) fatalRevertFailure(verified.reason);
     return { ok: false, reason: 'TOKEN_UNVERIFIED' };
   }
   if (!self.sameUser(verified.facts.userSid)) return { ok: false, reason: 'DIFFERENT_USER' };
